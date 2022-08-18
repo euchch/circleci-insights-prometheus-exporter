@@ -69,8 +69,8 @@ func NewEnvList() envList {
 	return envList{
 		timezone:       "America/New_York",
 		cciApiInterval: "300",
-		ghRepos:        "aetna-digital-infrastructure/DSSP-Developer-Portal,aetna-digital-infrastructure/dfp-gitops-package-ccloud-definitions,aetna-digital-infrastructure/rally-service",
-		ghBranches:     "master,main",
+		ghRepos:        "aetna-digital-infrastructure/poplarj-hello-world", // "aetna-digital-infrastructure/DSSP-Developer-Portal", // ,aetna-digital-infrastructure/dfp-gitops-package-ccloud-definitions,aetna-digital-infrastructure/rally-service",
+		ghBranches:     "fix/cci-image",                                    //"master",                                           // ,main",
 		cciToken:       "noMoreSecrets",
 	}
 }

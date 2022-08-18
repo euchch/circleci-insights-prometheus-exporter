@@ -85,6 +85,15 @@ func Init() error {
 
 func LocalRun() error {
 	K8sClusterValidate()
+
+	var token string
+	fmt.Println("Enter CCI token: ")
+	fmt.Scanln(&token)
+
+	envVars := NewEnvList()
+	envVars.TokenInit(token)
+
+	envVars.SetEnvVars()
 	err := sh.Run("go", "run", "main.go")
 	if err != nil {
 		return err
