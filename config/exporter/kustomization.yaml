@@ -4,6 +4,7 @@
 resources:
 - bases/configs.yaml
 - bases/deployment.yaml
+- bases/service.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge: []

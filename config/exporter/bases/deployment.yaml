@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleci-exporter
+  namespace: "circleci-exporter"
+  labels:
+    app.kubernetes.io/name: circleci-exporter
+    app: circleci-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "circleci-exporter"
+      app.kubernetes.io/instance: "circleci-exporter"
+  template:
+    metadata:
+      labels:
+        app: "circleci-exporter"
+        app.kubernetes.io/name: "circleci-exporter"
+        app.kubernetes.io/instance: "circleci-exporter"
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: "circleci-exporter"
+          image: "euchch/cci-insights-exporter:latest"
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name:   "TZ"
+              valueFrom:
+                configMapKeyRef:
+                  name: cci-reader
+                  key: TZ
+            - name:   "CIRCLECI_API_INTERVAL"
+              valueFrom:
+                configMapKeyRef:
+                  name: cci-reader
+                  key: ApiInterval
+            - name:   "GITHUB_REPOSITORY"
+              valueFrom:
+                configMapKeyRef:
+                  name: cci-reader
+                  key: Repositories
+            - name:   "GITHUB_BRANCH"
+              valueFrom:
+                configMapKeyRef:
+                  name: cci-reader
+                  key: Branches
+            - name:   "CIRCLECI_TOKEN"
+              valueFrom:
+                secretKeyRef:
+                  name: cci-reader
+                  key: token
+                  optional: false 
+          ports:
+            - containerPort: 9617
+              protocol: "TCP"
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: 9617
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: 9617
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"

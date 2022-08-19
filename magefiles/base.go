@@ -29,6 +29,7 @@ var Aliases = map[string]interface{}{
 	"bootstrap": Init,
 	"run":       LocalRun,
 	"build":     LocalBuild,
+	"dep":       Deploy,
 }
 
 func K8sClusterValidate() error {
@@ -84,6 +85,15 @@ func Init() error {
 
 func LocalRun() error {
 	K8sClusterValidate()
+
+	var token string
+	fmt.Println("Enter CCI token: ")
+	fmt.Scanln(&token)
+
+	envVars := NewEnvList()
+	envVars.TokenInit(token)
+
+	envVars.SetEnvVars()
 	err := sh.Run("go", "run", "main.go")
 	if err != nil {
 		return err
@@ -124,6 +134,44 @@ func LocalBuild() error {
 		"-v", pwd+":/cciex", "--entrypoint", "/usr/local/bin/kustomize",
 		kustomizeImage+":"+kubectlVersion+"-"+kustomizeVersion,
 		"build", "/cciex/config/default", "-o", "/cciex/"+kustomizeBaseDir+"/cci-exporter-deploy.yaml")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Deploy() error {
+	err := Clean()
+	if err != nil {
+		return err
+	}
+
+	err = sh.Run("kubectl", "apply", "-f", tokenPath)
+	if err != nil {
+		return err
+	}
+
+	err = LocalBuild()
+	if err != nil {
+		return err
+	}
+
+	err = sh.Run("kubectl", "apply", "-f", kustomizeDeployFile)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Clean() error {
+	err := sh.Run("kubectl", "delete", "-f", tokenPath, "--ignore-not-found=true")
+	if err != nil {
+		return err
+	}
+
+	err = sh.Run("kubectl", "delete", "-f", kustomizeDeployFile, "--ignore-not-found=true")
 	if err != nil {
 		return err
 	}

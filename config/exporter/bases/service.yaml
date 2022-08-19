@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: circleci-exporter
+  namespace: "circleci-exporter"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9617
+      targetPort: 9617
+      protocol: TCP
+      name: exporter-port
+  selector:
+    app.kubernetes.io/name: circleci-exporter
+    app.kubernetes.io/instance: circleci-exporter
